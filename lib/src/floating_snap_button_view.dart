@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'floating_snap_button_controller.dart';
 import 'widget.dart';
 
-
 final parentGlobalKey = GlobalKey<State>();
+
 enum Position {
   topLeft,
   topRight,
@@ -13,25 +13,31 @@ enum Position {
   topCenter,
   bottomCenter,
 }
-enum ChildrenStyle{
-horizontal,vertical,
+
+enum ChildrenStyle {
+  horizontal,
+  vertical,
 }
 
 @immutable
 class FloatingSnapButton extends StatelessWidget {
-  const FloatingSnapButton._({
+  FloatingSnapButton({
+    super.key,
     required this.displayMessageOnStart,
     this.startMessage,
     required this.messageDuration,
-     this.actionOnPress,
+    this.actionOnPress,
     required this.isDraggable,
     required this.fabIcon,
     this.initialPosition,
     this.offsetPosition,
     this.fabBgColor,
     this.childrenStyle = ChildrenStyle.horizontal,
-     this.children,
-  });
+    this.children,
+  }) {
+    assert(offsetPosition != null || initialPosition != null);
+    assert(actionOnPress != null || children != null);
+  }
 
   factory FloatingSnapButton.withStartMessage({
     Key? key,
@@ -47,10 +53,8 @@ class FloatingSnapButton extends StatelessWidget {
     ChildrenStyle childrenStyle = ChildrenStyle.horizontal,
   }) {
     assert(message.isNotEmpty);
-    assert(offsetPosition == null || initialPosition == null);
-    assert(actionOnPress == null || children == null);
 
-    return FloatingSnapButton._(
+    return FloatingSnapButton(
       displayMessageOnStart: true,
       startMessage: message,
       messageDuration: messageDuration,
@@ -77,7 +81,6 @@ class FloatingSnapButton extends StatelessWidget {
   final Color? fabBgColor;
   final List<ActionButton>? children;
   final ChildrenStyle childrenStyle;
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,10 +115,8 @@ class FloatingSnapButtonView extends StatelessWidget {
     this.offsetPosition,
     this.fabBgColor,
     this.children,
-     this.actionOnPress,
+    this.actionOnPress,
     this.startMessage,
-
-
   });
 
   final bool displayMessageOnStart;
@@ -129,7 +130,7 @@ class FloatingSnapButtonView extends StatelessWidget {
   final Icon fabIcon;
   final ChildrenStyle childrenStyle;
   final Color? fabBgColor;
-    final List<ActionButton>? children;
+  final List<ActionButton>? children;
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +145,9 @@ class FloatingSnapButtonView extends StatelessWidget {
         screenHeight: screenHeight,
         screenWidth: screenWidth,
         fabIcon: fabIcon,
-        fabBgColor: fabBgColor, children: children,
-        childrenStyle: childrenStyle
-        );
+        fabBgColor: fabBgColor,
+        children: children,
+        childrenStyle: childrenStyle);
     return _FloatingSnapButtonExtraBody(
       actionOnPress: actionOnPress,
       displayMessageOnStart: displayMessageOnStart,
@@ -160,7 +161,7 @@ class FloatingSnapButtonView extends StatelessWidget {
 class _FloatingSnapButtonExtraBody extends StatelessWidget {
   const _FloatingSnapButtonExtraBody({
     super.key,
-     this.actionOnPress,
+    this.actionOnPress,
     required this.displayMessageOnStart,
     required this.startMessage,
     required this.messageDuration,
@@ -184,13 +185,13 @@ class _FloatingSnapButtonExtraBody extends StatelessWidget {
           return const SizedBox();
         }
 
-        return  FabButtonAnimation(
-                displayMessageOnStart: displayMessageOnStart,
-                startMessage: startMessage,
-                messageDuration: messageDuration,
-                controller: controller,
-                actionOnPress: actionOnPress,
-              );
+        return FabButtonAnimation(
+          displayMessageOnStart: displayMessageOnStart,
+          startMessage: startMessage,
+          messageDuration: messageDuration,
+          controller: controller,
+          actionOnPress: actionOnPress,
+        );
       },
     );
   }

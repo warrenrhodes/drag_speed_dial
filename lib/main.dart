@@ -51,34 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          FloatingSnapButton.withStartMessage(
-            messageDuration: const Duration(seconds: 2),
-            message: 'Hello World',
-            isDraggable: true,
-            childrenStyle: ChildrenStyle.horizontal,
-            initialPosition: Position.topRight,
-            children: [
-              ActionButton(
-                onPressed: () {print("bonjour");},
-                icon: const Icon(Icons.format_size),
-                color: Colors.red,
-              ),
-              ActionButton(
-                onPressed: () {
-                  print("salut");
-                },
-                icon: const Icon(Icons.insert_photo),
-                color: Colors.green,
-              ),
-              ActionButton(
-                onPressed: () {
-                  print("salutoooo");
-                },
-                icon: const Icon(Icons.videocam),
-                color: Colors.black,
-              ),
-            ],
-          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +65,45 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ),
-          
+          FloatingSnapButton.withStartMessage(
+            messageDuration: const Duration(seconds: 2),
+            message: 'Hello World',
+            isDraggable: true,
+            childrenStyle: ChildrenStyle.vertical,
+            initialPosition: Position.bottomLeft,
+            children: [
+              ActionButton(
+                onPressed: () {
+                  print("bonjour");
+                },
+                child: const FloatingActionButton(
+                  backgroundColor: Colors.blue,
+                  onPressed: null,
+                  child: Icon(Icons.grade_outlined),
+                ),
+              ),
+              ActionButton(
+                onPressed: () {
+                  print("salut");
+                },
+                child: const FloatingActionButton(
+                  backgroundColor: Colors.yellow,
+                  onPressed: null,
+                  child: Icon(Icons.inbox),
+                ),
+              ),
+              ActionButton(
+                onPressed: () {
+                  print("salutoooo");
+                },
+                child: const FloatingActionButton(
+                  backgroundColor: Colors.red,
+                  onPressed: null,
+                  child: Icon(Icons.add),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

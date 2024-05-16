@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:floating_snap_button/src/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,9 +23,6 @@ class FloatingSnapButtonController {
 
   // Create a static instance variable to hold the singleton instance
   static FloatingSnapButtonController? _instance;
-
-  /// Checks if we can display tooltip message.
-  ValueNotifier<bool> displayTooltip = ValueNotifier(true);
 
   /// The top position.
   ValueNotifier<double> top = ValueNotifier(-1);
@@ -47,12 +45,19 @@ class FloatingSnapButtonController {
   /// the last position.
   ValueNotifier<Offset> lastPanPosition = ValueNotifier(Offset.zero);
 
-   /// The animation controller.
-  AnimationController menuAnimationController =
+  /// The animation controller.
+  static final AnimationController menuAnimationController =
       AnimationController(
-    duration: const Duration(milliseconds: 250),
+    duration: const Duration(milliseconds: 400),
     vsync: const _MyTickerProvider(),
   );
+
+  /// The animation.
+  final Animation<double> menuAnimation =
+      Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+    parent: menuAnimationController,
+    curve: const Interval(0, 0.5, curve: Curves.easeInOut),
+  ));
 
   /// Private constructor.
   FloatingSnapButtonController._({
@@ -184,7 +189,6 @@ class FloatingSnapButtonController {
   void onPanUpdate({
     required DragUpdateDetails details,
   }) {
-    print("-----");
     if (isDraggable == false) {
       return;
     }
@@ -214,11 +218,26 @@ class FloatingSnapButtonController {
     if (!isDismissible) {
       return;
     }
-
     final isColliding = hasCollision(deleteWidgetKey, floatingWidgetKey);
     if (isColliding) {
       await disableFloatingButton();
     }
+  }
+
+  void runAnimation(Offset velocity, Offset offset) {
+    print("object");
+    final simulation = SpringSimulation(
+      const SpringDescription(
+        mass: 1,
+        stiffness: 1,
+        damping: 1,
+      ),
+      offset.dy, // starting point
+      0, // ending point
+      velocity.dy, // velocity
+    );
+
+    menuAnimationController.animateWith(simulation);
   }
 
   Future<void> disableFloatingButton() async {
@@ -229,7 +248,6 @@ class FloatingSnapButtonController {
     );
   }
 }
-
 
 class _MyTickerProvider extends TickerProvider {
   const _MyTickerProvider();

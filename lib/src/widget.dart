@@ -1,69 +1,24 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:floating_snap_button/floating_snap_button.dart';
 import 'package:flutter/material.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 
+import '../floating_snap_button.dart';
 import 'floating_snap_button_controller.dart';
 import 'utils.dart';
 
 final hideFabKey = GlobalKey<State>();
 final fabGlobalKey = GlobalKey<State>();
-bool typeForFirstTime = false;
 
-class CloseWidget extends StatelessWidget {
-  const CloseWidget({super.key, required this.controller});
-  final FloatingSnapButtonController controller;
+class ActionButton {
+  const ActionButton({
+    this.onPressed,
+    required this.child,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (!controller.isDismissible) {
-      return const SizedBox();
-    }
-
-    return ValueListenableBuilder<bool>(
-        valueListenable: controller.isDragging,
-        builder: (context, value, child) {
-          return AnimatedPositioned(
-            duration: const Duration(milliseconds: 500),
-            top: value
-                ? MediaQuery.of(context).size.height - 180
-                : MediaQuery.of(context).size.height +
-                    controller.floatingWidgetHeight,
-            left: MediaQuery.of(context).size.width / 2 -
-                controller.floatingWidgetWidth,
-            child: Container(
-              padding: const EdgeInsets.only(bottom: 50),
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                key: hideFabKey,
-                height: 60,
-                width: 60,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: theme.brightness == Brightness.dark
-                        ? lightLinearGradient
-                        : darkLinearGradient,
-                    shape: BoxShape.circle,
-                    border: const Border.fromBorderSide(
-                      BorderSide(width: 4, color: Colors.white),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.close,
-                    color: theme.brightness == Brightness.dark
-                        ? Colors.black
-                        : Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-  }
+  final VoidCallback? onPressed;
+  final Widget child;
 }
 
 class FabButtonAnimation extends StatelessWidget {
@@ -84,7 +39,39 @@ class FabButtonAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ValueNotifier<bool> open = ValueNotifier(false);
+    final List<Widget> defaultMenuItems = [
+      _FloatingButton(
+        displayMessageOnStart: displayMessageOnStart,
+        startMessage: startMessage,
+        messageDuration: messageDuration,
+        controller: controller,
+        onPressed: actionOnPress ?? () {},
+        child: FloatingActionButton(
+          backgroundColor: controller.fabBgColor,
+          onPressed: null,
+          child: controller.fabIcon,
+        ),
+      ),
+    ];
+    final children = controller.children?.asMap().entries.map((e) {
+      return _FloatingButton(
+        displayMessageOnStart: displayMessageOnStart &&
+                e.key == (controller.children?.length ?? 1) - 1
+            ? displayMessageOnStart
+            : false,
+        startMessage: startMessage,
+        messageDuration: messageDuration,
+        controller: controller,
+        child: e.value.child,
+        onPressed: () {
+          FloatingSnapButtonController.menuAnimationController.status ==
+                  AnimationStatus.completed
+              ? FloatingSnapButtonController.menuAnimationController.reverse()
+              : FloatingSnapButtonController.menuAnimationController.forward();
+          e.value.onPressed?.call();
+        },
+      );
+    });
 
     return ValueListenableBuilder<bool>(
         valueListenable: controller.isDragging,
@@ -95,58 +82,43 @@ class FabButtonAnimation extends StatelessWidget {
                 return ValueListenableBuilder<double>(
                     valueListenable: controller.left,
                     builder: (context, valueLeft, child) {
-                      Future.microtask(() {
-                        if (!isDragging) {
+                      // Future.microtask(() {
+                      //   if (!isDragging) {
+                      //     controller.onPanEnd(
+                      //         details: DragEndDetails(),
+                      //         context: context,
+                      //         floatingWidgetKey: fabGlobalKey,
+                      //         deleteWidgetKey: hideFabKey);
+                      //   }
+                      // });
+                      return GestureDetector(
+                        onPanUpdate: (details) =>
+                            controller.onPanUpdate(details: details),
+                        onPanEnd: (details) {
                           controller.onPanEnd(
-                              details: DragEndDetails(),
-                              context: context,
-                              floatingWidgetKey: fabGlobalKey,
-                              deleteWidgetKey: hideFabKey);
-                        }
-                      });
-
-                      return AnimatedPositioned(
-                        duration: Duration(
-                          milliseconds: isDragging ? 100 : 700,
-                        ),
-                        curve: Curves.bounceOut,
-                        top: valueTop,
-                        left: valueLeft,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (actionOnPress == null) {
-                              open.value =
-                                  controller.children?.isNotEmpty != null &&
-                                          controller.children!.isNotEmpty
-                                      ? !open.value
-                                      : true;
-                              typeForFirstTime = true;
-                              return;
-                            }
-                            actionOnPress?.call();
-                          },
-                          onPanUpdate: (details) =>
-                              controller.onPanUpdate(details: details),
-                          onPanEnd: (details) => controller.onPanEnd(
                             details: details,
                             context: context,
                             floatingWidgetKey: fabGlobalKey,
                             deleteWidgetKey: hideFabKey,
+                          );
+                          // controller.runAnimation(
+                          //     details.velocity.pixelsPerSecond,
+                          //     Offset(valueLeft, valueTop));
+                        },
+                        child: Flow(
+                          clipBehavior: Clip.none,
+                          key: fabGlobalKey,
+                          delegate: _FlowMenuDelegate(
+                            menuAnimation: controller.menuAnimation,
+                            dx: valueLeft,
+                            dy: valueTop,
+                            controller: controller,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height,
                           ),
-                          child: SizedBox(
-                            key: fabGlobalKey,
-                            child: ValueListenableBuilder<bool>(
-                                valueListenable: open,
-                                builder: (context, value, child) {
-                                  return _BuildTapToCloseFab(
-                                      controller: controller,
-                                      displayMessageOnStart:
-                                          displayMessageOnStart,
-                                      startMessage: startMessage,
-                                      messageDuration: messageDuration,
-                                      value: value);
-                                }),
-                          ),
+                          children: children == null
+                              ? defaultMenuItems
+                              : children.map<Widget>((data) => data).toList(),
                         ),
                       );
                     });
@@ -155,122 +127,49 @@ class FabButtonAnimation extends StatelessWidget {
   }
 }
 
-class _BuildTapToCloseFab extends StatelessWidget {
-  final FloatingSnapButtonController controller;
-  final bool value;
+class _FloatingButton extends StatelessWidget {
+  const _FloatingButton({
+    required this.displayMessageOnStart,
+    this.startMessage,
+    required this.messageDuration,
+    required this.controller,
+    required this.child,
+    required this.onPressed,
+  }) : super();
+
   final bool displayMessageOnStart;
   final String? startMessage;
   final Duration messageDuration;
-
-  const _BuildTapToCloseFab(
-      {super.key,
-      required this.controller,
-      required this.value,
-      required this.displayMessageOnStart,
-      required this.startMessage,
-      required this.messageDuration});
+  final FloatingSnapButtonController controller;
+  final Widget child;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final children = controller.children;
-
-    if (children == null) {
-      return const SizedBox();
+    if (!displayMessageOnStart) {
+      return InkWell(onTap: onPressed, child: child);
     }
+    return LayoutBuilder(builder: (context, constraints) {
+      Future.microtask(() => Future.delayed(
+          messageDuration, controller.tooltipController.showTooltip));
 
-    double lastItemX = 0;
-    double lastItemY = 0;
+      Future.microtask(() => Future.delayed(const Duration(seconds: 2),
+          controller.tooltipController.hideTooltip));
 
-    Offset? getPosition() {
-      final width = MediaQuery.of(context).size.width;
-      final height = MediaQuery.of(context).size.height;
-      RenderBox? box2 =
-          fabGlobalKey.currentContext?.findRenderObject() as RenderBox?;
-      if (box2 == null) {
-        return null;
-      }
-      final pos1 = box2.localToGlobal(Offset.zero);
-
-      switch (controller.childrenStyle) {
-        case ChildrenStyle.horizontal:
-          if (pos1.dx < width / 2) {
-            lastItemX = max(50, lastItemX + 30);
-            return Offset(lastItemX, 10);
-          }
-          lastItemX = min(-30, lastItemX - 30);
-          return Offset(lastItemX, 10);
-        case ChildrenStyle.vertical:
-          if (pos1.dy < height / 2) {
-            lastItemY = max(80, lastItemY + 30);
-            return Offset(10, lastItemY);
-          }
-          lastItemY = min(-50, lastItemY - 30);
-          return Offset(10, lastItemY);
-        default:
-          return null;
-      }
-    }
-
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        ...children.asMap().entries.map((entry) {
-          final child = entry.value;
-          return Positioned(
-            top: typeForFirstTime ? getPosition()?.dy : null,
-            left: typeForFirstTime ? getPosition()?.dx : null,
-            child: AnimatedOpacity(
-              opacity: value ? 1 : 0.0,
-              curve: Curves.easeInOut,
-              duration: const Duration(seconds: 1),
-              child: child,
-            ),
-          );
-        }),
-        
-        if (!value)
-          _FloatingButton(
-            displayMessageOnStart: displayMessageOnStart,
-            startMessage: startMessage,
-            messageDuration: messageDuration,
-            controller: controller,
-          ),
-          Positioned(
-          top: 90,
-          left: 20,
-          child: GestureDetector(
-            onTap: () {
-              print("salutoooo");
-            },
-            child: Container(
-              width: 50,
-              height: 50,
-              color: Colors.red,
+      return SizedBox(
+        child: JustTheTooltip(
+          controller: controller.tooltipController,
+          preferredDirection: AxisDirection.up,
+          content: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              startMessage ?? '',
             ),
           ),
+          child: InkWell(onTap: onPressed, child: child),
         ),
-        if (value)
-          SizedBox(
-            child: Center(
-              child: Material(
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                elevation: 4,
-                child: InkWell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.close,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        
-      ],
-    );
+      );
+    });
   }
 }
 
@@ -345,97 +244,109 @@ class BuilderOnHideFAB extends StatelessWidget {
   }
 }
 
-class _FloatingButton extends StatelessWidget {
-  const _FloatingButton({
-    required this.displayMessageOnStart,
-    this.startMessage,
-    required this.messageDuration,
-    required this.controller,
-  }) : super();
+class _FlowMenuDelegate extends FlowDelegate {
+  _FlowMenuDelegate(
+      {required this.menuAnimation,
+      required this.dx,
+      required this.dy,
+      required this.controller,
+      required this.width,
+      required this.height})
+      : super(repaint: menuAnimation);
 
-  final bool displayMessageOnStart;
-  final String? startMessage;
-  final Duration messageDuration;
+  final Animation<double> menuAnimation;
+  final double dx;
+  final double dy;
+  final double width;
+  final double height;
+  final FloatingSnapButtonController controller;
+
+  @override
+  bool shouldRepaint(_FlowMenuDelegate oldDelegate) {
+    return Offset(dx, dy) != Offset(oldDelegate.dx, oldDelegate.dy) ||
+        menuAnimation != oldDelegate.menuAnimation;
+  }
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    double scale = menuAnimation.value;
+    double currentDx = dx;
+    double currentDy = dy;
+    for (int i = 0; i < context.childCount; ++i) {
+      double bounceFactor = 0.5;
+      double bounceAmount = sin(menuAnimation.value * pi) * bounceFactor;
+      if (controller.childrenStyle == ChildrenStyle.horizontal) {
+        if (dx < width / 2) {
+          currentDx = dx + (i * 70) * scale;
+        } else {
+          currentDx = dx + (i * -70) * scale;
+        }
+      } else {
+        if (dy < height / 2) {
+          currentDy = dy + (i * 70) * scale;
+        } else {
+          currentDy = dy + (i * -70) * scale;
+        }
+      }
+      context.paintChild(i,
+          transform: Matrix4.identity()
+            ..setTranslationRaw(currentDx, currentDy, 0.0));
+      // context.paintChild(i,
+      //     transform: Matrix4.translationValues(currentDx, currentDy, 0.0));
+    }
+  }
+}
+
+class CloseWidget extends StatelessWidget {
+  const CloseWidget({super.key, required this.controller});
   final FloatingSnapButtonController controller;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (!controller.isDismissible) {
+      return const SizedBox();
+    }
+
     return ValueListenableBuilder<bool>(
-        valueListenable: controller.displayTooltip,
-        builder: (context, displayTooltip, child) {
-          if (displayTooltip && displayMessageOnStart) {
-            Future.microtask(() => Future.delayed(
-                messageDuration, controller.tooltipController.showTooltip));
-          }
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              if (displayMessageOnStart) {
-                return SizedBox(
-                  child: JustTheTooltip(
-                    onDismiss: () => controller.displayTooltip.value = false,
-                    controller: controller.tooltipController,
-                    preferredDirection: AxisDirection.up,
-                    content: !displayTooltip
-                        ? const SizedBox()
-                        : Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              startMessage ?? '',
-                            ),
-                          ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        FloatingActionButton(
-                          backgroundColor: controller.fabBgColor,
-                          onPressed: null,
-                          child: controller.fabIcon,
-                        ),
-                      ],
+        valueListenable: controller.isDragging,
+        builder: (context, value, child) {
+          return AnimatedPositioned(
+            duration: const Duration(milliseconds: 500),
+            top: value
+                ? MediaQuery.of(context).size.height - 180
+                : MediaQuery.of(context).size.height +
+                    controller.floatingWidgetHeight,
+            left: MediaQuery.of(context).size.width / 2 -
+                controller.floatingWidgetWidth,
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 50),
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                key: hideFabKey,
+                height: 60,
+                width: 60,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: theme.brightness == Brightness.dark
+                        ? lightLinearGradient
+                        : darkLinearGradient,
+                    shape: BoxShape.circle,
+                    border: const Border.fromBorderSide(
+                      BorderSide(width: 4, color: Colors.white),
                     ),
                   ),
-                );
-              }
-
-              return FloatingActionButton(
-                backgroundColor: controller.fabBgColor,
-                onPressed: null,
-                child: controller.fabIcon,
-              );
-            },
+                  child: Icon(
+                    Icons.close,
+                    color: theme.brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.white,
+                  ),
+                ),
+              ),
+            ),
           );
         });
-  }
-}
-
-class ActionButton extends StatelessWidget {
-  const ActionButton({
-    super.key,
-    this.onPressed,
-    required this.icon,
-    required this.color,
-  });
-
-  final VoidCallback? onPressed;
-  final Widget icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      color: theme.colorScheme.secondary,
-      elevation: 4,
-      child: IconButton(
-        onPressed: () {
-          onPressed?.call();
-          print("object pressed");
-        },
-        icon: icon,
-        color: color,
-      ),
-    );
   }
 }
