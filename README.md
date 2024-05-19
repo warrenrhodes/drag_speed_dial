@@ -2,11 +2,10 @@
 
 This package provides a highly customizable and interactive floating action button (FAB) that not only responds to taps but also offers a dynamic drag-to-reveal feature. Perfect for apps seeking to enhance navigation efficiency and user engagement without compromising on aesthetics.
 
-<div style="display:flex; justify-content: space-between;">
-<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo1.gif" width="250" height="500" />
-<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo2.gif" width="250" height="500" />
-<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo3.gif" width="250" height="500" />
-<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo4.gif" width="250" height="500" />
+<div style="display:flex; justify-content: space-between; gap: 20px;">
+    <img src="https://raw.githubusercontent.com/warrenrhodes/drag_speed_dial/master/screenshots/demo1.gif" width="250" height="450" />
+    <img src="https://raw.githubusercontent.com/warrenrhodes/drag_speed_dial/master/screenshots/demo3.gif" width="250" height="450" />
+    <img src="https://raw.githubusercontent.com/warrenrhodes/drag_speed_dial/master/screenshots/demo4.gif" width="250" height="450" />
 </div>
 
 ## 💻 Installation
