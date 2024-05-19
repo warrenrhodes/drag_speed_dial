@@ -1,3 +1,7 @@
 ## [0.0.1] - 2024-05-19
 
 * Initial release
+
+## [0.0.2] - 2024-05-19
+
+* Update the Readme.md
