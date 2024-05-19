@@ -54,7 +54,7 @@ DragSpeeDial(
 ),
 ```
 
-## Main Property
+## Main Properties
 
 | Attribute     | Type   | Default |  Description
 |---------------|--------|-------------|--------------------------|

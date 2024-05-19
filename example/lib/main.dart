@@ -176,92 +176,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 bgColor: Colors.yellow,
                 icon: const Icon(Icons.inbox),
               ),
-              DrapSpeedDialChild(
-                onPressed: () {
-                  print("saluoot");
-                },
-                bgColor: Colors.yellow,
-                icon: const Icon(Icons.inbox),
-              ),
-              DrapSpeedDialChild(
-                onPressed: () {
-                  print("salutppp");
-                },
-                bgColor: Colors.yellow,
-                icon: const Icon(Icons.inbox),
-              ),
             ],
           ),
         
         
         ],
-      ),
-    );
-  }
-}
-
-class SpeedDial extends StatefulWidget {
-  @override
-  _SpeedDialState createState() => _SpeedDialState();
-}
-
-class _SpeedDialState extends State<SpeedDial>
-    with SingleTickerProviderStateMixin {
-  final LayerLink _layerLink = LayerLink();
-  bool _isDialOpen = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        // This is the target widget
-        CompositedTransformTarget(
-          link: this._layerLink,
-          child: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isDialOpen = !_isDialOpen;
-              });
-            },
-            child: const Icon(Icons.add),
-            heroTag: null, // to prevent hero animation
-          ),
-        ),
-        // This is the overlay widget
-        Positioned(
-          right: 20,
-          bottom: 20,
-          child: _isDialOpen ? _buildDial() : Container(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDial() {
-    return CompositedTransformFollower(
-      link: this._layerLink,
-      showWhenUnlinked: false,
-      offset:
-          const Offset(0.0, -80.0), // Offset to position the dial above the FAB
-      child: Material(
-        elevation: 4.0,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              title: const Text('Option 1'),
-              onTap: () {
-                // Handle option 1 tap
-              },
-            ),
-            ListTile(
-              title: const Text('Option 2'),
-              onTap: () {
-                // Handle option 2 tap
-              },
-            ),
-          ],
-        ),
       ),
     );
   }
