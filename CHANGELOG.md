@@ -1,3 +1,3 @@
-## 0.0.1
+## [0.0.1] - 2024-05-19
 
-* TODO: Describe initial release.
+* A simple Drag Speed Dial

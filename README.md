@@ -1,39 +1,66 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Drag Speed Dial
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
+This package provides a highly customizable and interactive floating action button (FAB) that not only responds to taps but also offers a dynamic drag-to-reveal feature. Perfect for apps seeking to enhance navigation efficiency and user engagement without compromising on aesthetics.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
+<div style="display:flex; justify-content: space-between;">
+<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo1.gif" width="250" height="500" />
+<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo2.gif" width="250" height="500" />
+<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo3.gif" width="250" height="500" />
+<img src="https://raw.githubusercontent.com/Tughra/drag_speed_dial/master/screenshots/demo4.gif" width="250" height="500" />
+</div>
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## 💻 Installation
 
-## Features
+In the dependencies: section of your pubspec.yaml, add the following line:
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```yaml
+dependencies:
+  drag_speed_dial: <latest version>
 ```
 
-## Additional information
+## ❔ Usage
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Import this class
+
+```dart
+import 'package:drag_speed_dial/drag_speed_dial.dart';
+```
+
+Simple Implementation
+
+```dart
+
+DragSpeeDial(
+    startMessage: "Hello 👋",
+    fabIcon: const Icon(
+        Icons.add,
+        color: Colors.white,
+    ),
+    dragSpeedDialChildren: [
+        DrapSpeedDialChild(
+          onPressed: () {
+            print("bonjour");
+          },
+          bgColor: Colors.blue,
+          icon: const Icon(Icons.grade_outlined),
+        ),
+        DrapSpeedDialChild(
+          onPressed: () {
+            print("salut");
+          },
+          bgColor: Colors.yellow,
+          icon: const Icon(Icons.inbox),
+        ),
+    ],
+),
+```
+
+## Main Property
+
+| Attribute     | Type   | Default |  Description
+|---------------|--------|-------------|--------------------------|
+| isDraggable     | bool | true | Whether the FAB can be dragged |
+| snagOnScreen      | bool | false | Whether the FAB should snap on screen. |
+| aligment      | DrapSpeedDialChilrendAligment| DrapSpeedDialChilrendAligment.horizontal  | represents the aligment style of drag speed children|
+| dragSpeedDialChildren  | DrapSpeedDialChild[]  | Children widgets of the FAB. |
+| initialPosition | DrapSpeedDialPosition | / |  Initial position of the FAB |
