@@ -34,11 +34,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool isDraggable = true;
-  DrapSpeedDialChilrendAligment aligment =
-      DrapSpeedDialChilrendAligment.vertical;
-  DrapSpeedDialPosition initialPosition = DrapSpeedDialPosition.bottomRight;
-  bool snagOnScreen = false;
-  String? startMessage;
+  DragSpeedDialChildrenAlignment alignment =
+      DragSpeedDialChildrenAlignment.horizontal;
+  DragSpeedDialPosition initialPosition = DragSpeedDialPosition.bottomRight;
+  bool snagOnScreen = true;
 
   @override
   Widget build(BuildContext context) {
@@ -47,140 +46,121 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Row(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DefaultTextStyle(
-                        style: TextStyle(color: Colors.black),
-                        child: Text('Message ')),
-                        SizedBox(
-                          width: 150,
-
-                          child: TextField(
-                            onChanged: (value) => {
-                              setState(() {
-                                startMessage = value.isEmpty ? null : value;
-                              })
-                            },
-                          
-                          ),
-                        )
-                    
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DefaultTextStyle(
-                        style: TextStyle(color: Colors.black),
-                        child: Text('isDraggable: ')),
-                    Switch(
-                        value: isDraggable,
-                        onChanged: (value) => {
-                              setState(() {
-                                isDraggable = value;
-                              })
-                            }),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DefaultTextStyle(
-                        style: TextStyle(color: Colors.black),
-                        child: Text('Snag on screen: ')),
-                    Switch(
-                        value: snagOnScreen,
-                        onChanged: (value) => {
-                              setState(() {
-                                snagOnScreen = value;
-                              })
-                            }),
-                  ],
-                ),
-                Row(
+                    children: [
+                      const DefaultTextStyle(
+                          style: TextStyle(color: Colors.black),
+                          child: Text('isDraggable: ')),
+                      Switch(
+                          value: isDraggable,
+                          onChanged: (value) => {
+                                setState(() {
+                                  isDraggable = value;
+                                })
+                              }),
+                    ],
+                  ),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DefaultTextStyle(
-                        style: TextStyle(color: Colors.black),
-                        child: Text('Fab Aligment ')),
-                    DropdownButton<DrapSpeedDialChilrendAligment>(
-                        value: aligment,
-                        items: DrapSpeedDialChilrendAligment.values
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.name),
-                                ))
-                            .toList(),
-                        onChanged: (value) => {
-                              setState(() {
-                                aligment = value!;
-                              })
-                            }),
-                  ],
-                ),
-                Row(
+                    children: [
+                      const DefaultTextStyle(
+                          style: TextStyle(color: Colors.black),
+                          child: Text('Snag on screen: ')),
+                      Switch(
+                          value: snagOnScreen,
+                          onChanged: (value) => {
+                                setState(() {
+                                  snagOnScreen = value;
+                                })
+                              }),
+                    ],
+                  ),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const DefaultTextStyle(
-                        style: TextStyle(color: Colors.black),
-                        child: Text('Initial Position ')),
-                    DropdownButton<DrapSpeedDialPosition>(
-                        value: initialPosition,
-                        items: DrapSpeedDialPosition.values
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.name),
-                                ))
-                            .toList(),
-                        onChanged: (value) => {
-                              setState(() {
-                                initialPosition = value!;
-                              })
-                    }),
-
-                  ],
-                ), 
-                
+                    children: [
+                      const DefaultTextStyle(
+                          style: TextStyle(color: Colors.black),
+                          child: Text('Fab Aligment ')),
+                      DropdownButton<DragSpeedDialChildrenAlignment>(
+                          value: alignment,
+                          items: DragSpeedDialChildrenAlignment.values
+                              .map((e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e.name),
+                                  ))
+                              .toList(),
+                          onChanged: (value) => {
+                                setState(() {
+                                  alignment = value!;
+                                })
+                              }),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const DefaultTextStyle(
+                          style: TextStyle(color: Colors.black),
+                          child: Text('Initial Position ')),
+                      DropdownButton<DragSpeedDialPosition>(
+                          value: initialPosition,
+                          items: DragSpeedDialPosition.values
+                              .map((e) => DropdownMenuItem(
+                                    value: e,
+                                    child: Text(e.name),
+                                  ))
+                              .toList(),
+                          onChanged: (value) => {
+                                setState(() {
+                                  initialPosition = value!;
+                                })
+                              }),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            DragSpeedDial(
+              isDraggable: isDraggable,
+              alignment: alignment,
+              initialPosition: initialPosition,
+              snagOnScreen: snagOnScreen,
+              fabBgColor: Colors.red,
+              actionOnPress: () => print("salut"),
+              dragSpeedDialChildren: [
+                DragSpeedDialChild(
+                  onPressed: () {
+                    print("bonjour");
+                  },
+                  bgColor: Colors.blue,
+                  icon: const Icon(Icons.grade_outlined),
+                ),
+                DragSpeedDialChild(
+                  onPressed: () {
+                    print("salut");
+                  },
+                  bgColor: Colors.yellow,
+                  icon: const Icon(Icons.inbox),
+                ),
+                DragSpeedDialChild(
+                  onPressed: () {
+                    print("salut");
+                  },
+                  bgColor: Colors.red,
+                  icon: const Icon(Icons.headset_rounded),
+                ),
               ],
             ),
-          ),
-          DragSpeeDial(
-            isDraggable: isDraggable,
-            aligment: aligment,
-            initialPosition: initialPosition,
-            snagOnScreen: snagOnScreen,
-            startMessage: startMessage,
-            fabIcon: const Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            dragSpeedDialChildren: [
-              DrapSpeedDialChild(
-                onPressed: () {
-                  print("bonjour");
-                },
-                bgColor: Colors.blue,
-                icon: const Icon(Icons.grade_outlined),
-              ),
-              DrapSpeedDialChild(
-                onPressed: () {
-                  print("salut");
-                },
-                bgColor: Colors.yellow,
-                icon: const Icon(Icons.inbox),
-              ),
-            ],
-          ),
-        
-        
-        ],
+          ],
+        ),
       ),
     );
   }

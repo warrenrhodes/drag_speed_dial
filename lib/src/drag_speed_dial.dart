@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'drag_speed_dial_controller.dart';
 import 'drag_speed_dial_widget.dart';
 
-/// An enumeration representing the starting position of the `DrapSpeedDial` widget within its parent container.
+/// An enumeration representing the starting position of the `DragSpeedDial` widget within its parent container.
 ///
-/// This enumeration specifies where the `DrapSpeedDial` should initially appear within its parent container. 
-/// Options include corners (topLeft, topRight, bottomLeft, bottomRight) and centers (topCenter, bottomCenter), 
+/// This enumeration specifies where the `DragSpeedDial` should initially appear within its parent container.
+/// Options include corners (topLeft, topRight, bottomLeft, bottomRight) and centers (topCenter, bottomCenter),
 /// allowing for flexible placement strategies based on the desired UI layout.
-enum DrapSpeedDialPosition {
+enum DragSpeedDialPosition {
   topLeft,
   topRight,
   bottomLeft,
@@ -17,22 +17,22 @@ enum DrapSpeedDialPosition {
   bottomCenter,
 }
 
-/// An enumeration representing the style for displaying `DrapSpeedDialChildren` within the `DrapSpeedDial` widget.
+/// An enumeration representing the style for displaying `DragSpeedDialChildren` within the `DragSpeedDial` widget.
 ///
-/// This enumeration defines how the child elements [DrapSpeedDialChildren] are organized within the `DrapSpeedDial`. 
+/// This enumeration defines how the child elements [DragSpeedDialChildren] are organized within the `DragSpeedDial`.
 /// It offers two options: arranging them horizontally or vertically, providing flexibility in how the UI elements are presented to the user.
-enum DrapSpeedDialChilrendAligment{
+enum DragSpeedDialChildrenAlignment {
   horizontal,
   vertical,
 }
 
-class DrapSpeedDialChild {
-  /// Creates a new instance of `DrapSpeedDialChild`.
+class DragSpeedDialChild {
+  /// Creates a new instance of `DragSpeedDialChild`.
   ///
   /// [onPressed] is a callback that gets called when the button is pressed. It defaults to null if not provided.
   /// [icon] is the visual representation of the button. It cannot be null.
   /// [bgColor] is the background color of the button. It cannot be null.
-  const DrapSpeedDialChild({
+  const DragSpeedDialChild({
     this.onPressed,
     required this.icon,
     required this.bgColor,
@@ -46,107 +46,72 @@ class DrapSpeedDialChild {
 /// A custom widget that represents a draggable speed dial menu.
 ///
 /// This widget allows users to interact with a floating action button (FAB)
-/// that can display tomessages and perform actions when pressed. It supports
+/// that can display tooltip  and perform actions when pressed. It supports
 /// dragging to reveal additional options and customization through various parameters.
 @immutable
-class DragSpeeDial extends StatelessWidget {
-  const DragSpeeDial({
+class DragSpeedDial extends StatelessWidget {
+  const DragSpeedDial({
     super.key,
-    this.startMessageDuration = const Duration(seconds: 2),
-    this.startMessage,
+    this.tooltipMessage,
     this.actionOnPress,
     this.isDraggable = true,
     this.fabIcon = const Icon(Icons.menu),
     this.initialPosition,
     this.offsetPosition,
     this.fabBgColor,
-    this.aligment = DrapSpeedDialChilrendAligment.horizontal,
+    this.alignment = DragSpeedDialChildrenAlignment.horizontal,
     this.dragSpeedDialChildren,
     this.snagOnScreen = false,
   })  : assert(offsetPosition != null || initialPosition != null,
-            'InitialPosition or offsetPosition must be not null'),
-        assert(actionOnPress != null || dragSpeedDialChildren != null,
-            'ActionOnPress or dragSpeedDialChildren must be not null');
+            '`InitialPosition` or `offsetPosition` must be specified'),
+        assert((actionOnPress == null) != (dragSpeedDialChildren == null),
+            'Either `ActionOnPress` or `dragSpeedDialChildren` must be specified');
 
-  factory DragSpeeDial.withStartMessage({
-    Key? key,
-    required String message,
-    bool snagOnScreen = false,
-    Duration startMessageDuration = const Duration(seconds: 2),
-    VoidCallback? actionOnPress,
-    Icon fabIcon = const Icon(Icons.menu),
-    bool isDraggable = true,
-    DrapSpeedDialPosition? initialPosition,
-    Offset? offsetPosition,
-    Color? fabBgColor,
-    List<DrapSpeedDialChild>? dragSpeedDialChildren,
-    DrapSpeedDialChilrendAligment aligment = DrapSpeedDialChilrendAligment.horizontal,
-  }) {
-    
-    return DragSpeeDial(
-      startMessage: message,
-      startMessageDuration: startMessageDuration,
-      actionOnPress: actionOnPress,
-      isDraggable: isDraggable,
-      initialPosition: initialPosition,
-      offsetPosition: offsetPosition,
-      fabIcon: fabIcon,
-      fabBgColor: fabBgColor,
-      aligment: aligment,
-      dragSpeedDialChildren: dragSpeedDialChildren,
-      snagOnScreen: snagOnScreen,
-    );
-  }
+  /// The tooltip message.
+  final String? tooltipMessage;
 
-/// The duration for which the start message should be displayed.
-final Duration startMessageDuration;
+  /// Callback function to be executed when the FAB is pressed.
+  final VoidCallback? actionOnPress;
 
-/// The message to be displayed at the start.
-final String? startMessage;
+  /// Whether the FAB can be dragged.
+  final bool isDraggable;
 
-/// Callback function to be executed when the FAB is pressed.
-final VoidCallback? actionOnPress;
+  /// Initial position of the FAB.
+  ///
+  /// If [offsetPosition] is not null, this property is ignored.
+  final DragSpeedDialPosition? initialPosition;
 
-/// Whether the FAB can be dragged.
-final bool isDraggable;
+  /// Offset position of the FAB.
+  ///
+  /// If [initialPosition] is not null, this property is ignored.
+  final Offset? offsetPosition;
 
-/// Initial position of the FAB.
-/// 
-/// If [offsetPosition] is not null, this property is ignored.
-final DrapSpeedDialPosition? initialPosition;
+  /// Icon displayed on the FAB.
+  final Icon fabIcon;
 
-/// Offset position of the FAB.
-/// 
-/// If [initialPosition] is not null, this property is ignored.
-final Offset? offsetPosition;
+  /// Background color of the FAB.
+  final Color? fabBgColor;
 
-/// Icon displayed on the FAB.
-final Icon fabIcon;
+  /// Children widgets of the FAB.
+  final List<DragSpeedDialChild>? dragSpeedDialChildren;
 
-/// Background color of the FAB.
-final Color? fabBgColor;
+  /// Style alignment of the [DragSpeedDialChilrend] widgets.
+  final DragSpeedDialChildrenAlignment alignment;
 
-/// Children widgets of the FAB.
-final List<DrapSpeedDialChild>? dragSpeedDialChildren;
-
-/// Style alignment of the [DrapSpeedDialChilrend] widgets.
-final DrapSpeedDialChilrendAligment aligment;
-
-/// Whether the FAB should snap on screen.
-final bool snagOnScreen;
+  /// Whether the FAB should snap on screen.
+  final bool snagOnScreen;
 
   @override
   Widget build(BuildContext context) {
     return FloatingSnapButtonView(
       actionOnPress: actionOnPress,
-      messageDuration: startMessageDuration,
-      startMessage: startMessage,
+      tooltipMessage: tooltipMessage,
       isDraggable: isDraggable,
       initialPosition: initialPosition,
       offsetPosition: offsetPosition,
       fabIcon: fabIcon,
       fabBgColor: fabBgColor,
-      childrenStyle: aligment,
+      childrenStyle: alignment,
       dragSpeedDialChildren: dragSpeedDialChildren,
       snagOnScreen: snagOnScreen,
     );
@@ -157,7 +122,6 @@ final bool snagOnScreen;
 class FloatingSnapButtonView extends StatelessWidget {
   const FloatingSnapButtonView({
     super.key,
-    required this.messageDuration,
     required this.isDraggable,
     required this.fabIcon,
     required this.childrenStyle,
@@ -167,20 +131,19 @@ class FloatingSnapButtonView extends StatelessWidget {
     this.fabBgColor,
     this.dragSpeedDialChildren,
     this.actionOnPress,
-    this.startMessage,
+    this.tooltipMessage,
   });
 
   final bool snagOnScreen;
-  final String? startMessage;
-  final Duration messageDuration;
+  final String? tooltipMessage;
   final VoidCallback? actionOnPress;
   final bool isDraggable;
-  final DrapSpeedDialPosition? initialPosition;
+  final DragSpeedDialPosition? initialPosition;
   final Offset? offsetPosition;
   final Icon fabIcon;
-  final DrapSpeedDialChilrendAligment childrenStyle;
+  final DragSpeedDialChildrenAlignment childrenStyle;
   final Color? fabBgColor;
-  final List<DrapSpeedDialChild>? dragSpeedDialChildren;
+  final List<DragSpeedDialChild>? dragSpeedDialChildren;
 
   @override
   Widget build(BuildContext context) {
@@ -201,16 +164,11 @@ class FloatingSnapButtonView extends StatelessWidget {
         dragSpeedDialChildren: dragSpeedDialChildren,
         childrenStyle: childrenStyle);
     return DragSpeedDialButtonAnimation(
-      startMessage: startMessage,
-      messageDuration: messageDuration,
+      tooltipMessage: tooltipMessage,
       controller: controller,
       actionOnPress: actionOnPress,
     );
   }
-}
-
-class PreferencesKeys {
-  static const String isButtonCollapsed = 'isButtonCollapsed';
 }
 
 const darkLinearGradient = LinearGradient(

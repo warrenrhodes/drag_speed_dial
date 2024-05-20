@@ -29,21 +29,21 @@ Simple Implementation
 
 ```dart
 
-DragSpeeDial(
-    startMessage: "Hello 👋",
+DragSpeedDial(
+    isDraggable: false,
     fabIcon: const Icon(
         Icons.add,
         color: Colors.white,
     ),
     dragSpeedDialChildren: [
-        DrapSpeedDialChild(
+        DragSpeedDialChild(
           onPressed: () {
             print("bonjour");
           },
           bgColor: Colors.blue,
           icon: const Icon(Icons.grade_outlined),
         ),
-        DrapSpeedDialChild(
+        DragSpeedDialChild(
           onPressed: () {
             print("salut");
           },
@@ -56,10 +56,10 @@ DragSpeeDial(
 
 ## Main Properties
 
-| Attribute     | Type   | Default |  Description
-|---------------|--------|-------------|--------------------------|
-| isDraggable     | bool | true | Whether the FAB can be dragged |
-| snagOnScreen      | bool | false | Whether the FAB should snap on screen. |
-| aligment      | DrapSpeedDialChilrendAligment| DrapSpeedDialChilrendAligment.horizontal  | represents the aligment style of drag speed children|
-| dragSpeedDialChildren  | DrapSpeedDialChild[]  | Children widgets of the FAB. |
-| initialPosition | DrapSpeedDialPosition | / |  Initial position of the FAB |
+| Attribute             | Type                          | Default                                   | Description                                           |
+| --------------------- | ----------------------------- | ----------------------------------------- | ----------------------------------------------------- |
+| isDraggable           | bool                          | true                                      | Whether the FAB can be dragged                        |
+| snagOnScreen          | bool                          | false                                     | Whether the FAB should snap on screen.                |
+| alignment             | DragSpeedDialChilrenAlignment | DragSpeedDialChildrenAlignment.horizontal | represents the alignment style of drag speed children |
+| dragSpeedDialChildren | DragSpeedDialChild[]          | Children widgets of the FAB.              |
+| initialPosition       | DragSpeedDialPosition         | /                                         | Initial position of the FAB                           |

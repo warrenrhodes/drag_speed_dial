@@ -3,20 +3,22 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
 
 import 'drag_speed_dial.dart';
 
 /// The [DragSpeedDialController].
 class DragSpeedDialController extends ChangeNotifier {
   final bool isDraggable;
-  final DrapSpeedDialPosition? initialPosition;
+  final DragSpeedDialPosition? initialPosition;
   final Offset? offsetPosition;
   final Icon fabIcon;
   final Color? fabBgColor;
-  final List<DrapSpeedDialChild>? dragSpeedDialChildren;
-  final DrapSpeedDialChilrendAligment childrenStyle;
+  final List<DragSpeedDialChild>? dragSpeedDialChildren;
+  final DragSpeedDialChildrenAlignment childrenStyle;
   final bool snagOnScreen;
+
+  // Create a static instance variable to hold the singleton instance
+  static DragSpeedDialController? _instance;
 
   /// Whether the tooltip has been shown.
   bool isTooltipMessageDisplayed = false;
@@ -29,9 +31,6 @@ class DragSpeedDialController extends ChangeNotifier {
 
   /// Is in dragging state.
   bool isDragging = false;
-
-  /// The tooltip controller.
-  final tooltipController = JustTheController();
 
   /// The button layer link.
   final buttonLayerLink = LayerLink();
@@ -97,7 +96,7 @@ class DragSpeedDialController extends ChangeNotifier {
   }
 
   /// Private constructor.
-  DragSpeedDialController({
+  DragSpeedDialController._({
     required this.isDraggable,
     this.initialPosition,
     this.offsetPosition,
@@ -117,8 +116,36 @@ class DragSpeedDialController extends ChangeNotifier {
     );
   }
 
+  factory DragSpeedDialController({
+    required bool isDraggable,
+    DragSpeedDialPosition? initialPosition,
+    Offset? offsetPosition,
+    required Icon fabIcon,
+    Color? fabBgColor,
+    List<DragSpeedDialChild>? dragSpeedDialChildren,
+    required DragSpeedDialChildrenAlignment childrenStyle,
+    required double screenWidth,
+    required double screenHeight,
+    required bool snagOnScreen,
+  }) {
+    _instance ??= DragSpeedDialController._(
+      isDraggable: isDraggable,
+      initialPosition: initialPosition,
+      offsetPosition: offsetPosition,
+      fabIcon: fabIcon,
+      fabBgColor: fabBgColor,
+      dragSpeedDialChildren: dragSpeedDialChildren,
+      childrenStyle: childrenStyle,
+      screenWidth: screenWidth,
+      screenHeight: screenHeight,
+      snagOnScreen: snagOnScreen,
+    );
+
+    return _instance!;
+  }
+
   void _setInitialPosition({
-    DrapSpeedDialPosition? initialPosition,
+    DragSpeedDialPosition? initialPosition,
     Offset? offsetPosition,
     required double screenHeight,
     required double screenWidth,
@@ -128,32 +155,31 @@ class DragSpeedDialController extends ChangeNotifier {
       return;
     }
 
-    DrapSpeedDialPosition currentInitPosition =
-        initialPosition ?? DrapSpeedDialPosition.bottomRight;
+    DragSpeedDialPosition currentInitPosition =
+        initialPosition ?? DragSpeedDialPosition.bottomRight;
     const int fabWidth = 60;
 
     switch (currentInitPosition) {
-      case DrapSpeedDialPosition.topLeft:
+      case DragSpeedDialPosition.topLeft:
         fabPosition = const Offset(5, 5);
         break;
-      case DrapSpeedDialPosition.topRight:
+      case DragSpeedDialPosition.topRight:
         fabPosition = Offset(screenWidth - fabWidth - 5, 5);
         break;
-      case DrapSpeedDialPosition.bottomLeft:
-        fabPosition = Offset(80, screenHeight - fabWidth - 5);
+      case DragSpeedDialPosition.bottomLeft:
+        fabPosition = Offset(5, screenHeight - 140);
         break;
-      case DrapSpeedDialPosition.bottomRight:
-        fabPosition =
-            Offset(screenWidth - fabWidth - 5, screenHeight - fabWidth - 80);
+      case DragSpeedDialPosition.bottomRight:
+        fabPosition = Offset(screenWidth - fabWidth - 5, screenHeight - 140);
 
         break;
-      case DrapSpeedDialPosition.topCenter:
+      case DragSpeedDialPosition.topCenter:
         fabPosition = Offset((screenWidth - fabWidth) / 2, 5);
 
         break;
-      case DrapSpeedDialPosition.bottomCenter:
+      case DragSpeedDialPosition.bottomCenter:
         fabPosition =
-            Offset((screenWidth - fabWidth) / 2,  screenHeight - fabWidth - 80);
+            Offset((screenWidth - fabWidth) / 2, screenHeight - fabWidth - 80);
         break;
     }
   }
@@ -168,8 +194,8 @@ class DragSpeedDialController extends ChangeNotifier {
     overlayEntry?.remove();
     overlayEntry = null;
     isDragging = true;
-    fabPosition = Offset(max(0, fabPosition.dx + details.delta.dx),
-        max(0, fabPosition.dy + details.delta.dy));
+    fabPosition = Offset(
+        fabPosition.dx + details.delta.dx, fabPosition.dy + details.delta.dy);
     notifyListeners();
   }
 
@@ -179,16 +205,35 @@ class DragSpeedDialController extends ChangeNotifier {
     required double screenHeight,
   }) async {
     isDragging = false;
-    removeLayer();
+    //removeLayer();
+    double leftX = fabPosition.dx;
+    double leftY = fabPosition.dy;
 
     if (snagOnScreen) {
+      if (leftY > screenHeight - 60) {
+        leftY = screenHeight - 110;
+      }
+      if (leftX > screenWidth - 60) {
+        leftX = screenWidth - 65;
+      }
+      fabPosition = Offset(leftX, leftY);
       notifyListeners();
       return;
     }
-    fabPosition = Offset(fabPosition.dx >= screenWidth / 2 ? screenWidth - 65 : 5,
-        min(fabPosition.dy, screenHeight - 140));
-    notifyListeners();
 
+    if (leftX > screenWidth / 2) {
+      leftX = screenWidth - 65;
+    } else {
+      leftX = 5;
+    }
+    if (leftY > screenHeight - 140) {
+      leftY = screenHeight - 110;
+    } else {
+      leftY = leftY;
+    }
+    fabPosition = Offset(leftX, leftY);
+
+    notifyListeners();
   }
 
   void showOverlay(BuildContext context, List<Widget> children) {
@@ -228,38 +273,36 @@ class DragSpeedDialController extends ChangeNotifier {
     Offset? newItemPosition;
 
     switch (childrenStyle) {
-      case DrapSpeedDialChilrendAligment.horizontal:
+      case DragSpeedDialChildrenAlignment.horizontal:
         if (position.dx < screenWidth / 2) {
           lastItemX = max(60, lastItemX + 50);
           itemPosition = Offset(lastItemX, 0);
-          newItemPosition =  Offset(lastItemX, 6);
+          newItemPosition = Offset(lastItemX, 6);
           break;
         }
         lastItemX = min(-50, lastItemX - 50);
         itemPosition = Offset(lastItemX, 0);
-        newItemPosition =  Offset(lastItemX, 6);
+        newItemPosition = Offset(lastItemX, 6);
         break;
-      case DrapSpeedDialChilrendAligment.vertical:
+      case DragSpeedDialChildrenAlignment.vertical:
         if (position.dy < screenHeight / 2) {
           lastItemY = max(60, lastItemY + 50);
           itemPosition = Offset(0, lastItemY);
-          newItemPosition =  Offset(8, lastItemY);
+          newItemPosition = Offset(8, lastItemY);
           break;
         }
         lastItemY = min(0, lastItemY - 50);
         itemPosition = Offset(0, lastItemY);
-        newItemPosition=  Offset(6, lastItemY);
+        newItemPosition = Offset(6, lastItemY);
         break;
       default:
-        newItemPosition =  null;
+        newItemPosition = null;
         break;
     }
     return newItemPosition;
-    
   }
 
   void disableTooltipMessageDisplay() {
-    tooltipController.hideTooltip();
     isTooltipMessageDisplayed = true;
 
     notifyListeners();
