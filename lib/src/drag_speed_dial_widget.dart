@@ -1,22 +1,19 @@
 import 'dart:async';
 
-import 'drag_speed_dial.dart';
 import 'package:flutter/material.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
 
+import 'drag_speed_dial.dart';
 import 'drag_speed_dial_controller.dart';
 
 class DragSpeedDialButtonAnimation extends StatelessWidget {
   const DragSpeedDialButtonAnimation({
     super.key,
-    required this.startMessage,
-    required this.messageDuration,
+    this.tooltipMessage,
     required this.controller,
     this.actionOnPress,
   });
 
-  final String? startMessage;
-  final Duration messageDuration;
+  final String? tooltipMessage;
   final DragSpeedDialController controller;
   final VoidCallback? actionOnPress;
 
@@ -24,12 +21,10 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final dragSpeedDialChildren = controller.dragSpeedDialChildren?.asMap().entries.map((e) {
-      return _FabsItem(
-          controller: controller,
-          startMessage: startMessage,
-          messageDuration: messageDuration,
-          child: e);
+    final dragSpeedDialChildren =
+        controller.dragSpeedDialChildren?.asMap().entries.map((e) {
+      return _FabItem(
+          controller: controller, tooltipMessage: tooltipMessage, child: e);
     });
 
     return ListenableBuilder(
@@ -57,30 +52,24 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
                     controller.onPanUpdate(details: details),
                 onPanEnd: (details) {
                   controller.onPanEnd(
-                        screenHeight: screenHeight,
-                screenWidth: screenWidth,
+                    screenHeight: screenHeight,
+                    screenWidth: screenWidth,
                   );
                 },
                 child: dragSpeedDialChildren == null
-                    ? Stack(
-                        children: [
-                          Positioned(
-                              top: controller.fabPosition.dy,
-                              left: controller.fabPosition.dx,
-                              child: _MainFirstButton(
-                                startMessage: startMessage,
-                                messageDuration: messageDuration,
-                                controller: controller,
-                                actionOnPress: actionOnPress,
-                                rotateTheIcon: false,
-                              )),
-                        ],
+                    ? Material(
+                        clipBehavior: Clip.antiAlias,
+                        shape: const CircleBorder(),
+                        child: FloatingActionButton(
+                          backgroundColor: controller.fabBgColor,
+                          heroTag: null,
+                          onPressed: actionOnPress,
+                          child: controller.fabIcon,
+                        ),
                       )
                     : CompositedTransformTarget(
                         link: controller.buttonLayerLink,
                         child: _MainFirstButton(
-                          startMessage: startMessage,
-                          messageDuration: messageDuration,
                           controller: controller,
                           actionOnPress: actionOnPress,
                           rotateTheIcon: true,
@@ -98,19 +87,16 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
   }
 }
 
-class _FabsItem extends StatelessWidget {
-  const _FabsItem({
-    super.key,
+class _FabItem extends StatelessWidget {
+  const _FabItem({
     required this.controller,
-    required this.startMessage,
-    required this.messageDuration,
+    this.tooltipMessage,
     required this.child,
   });
 
   final DragSpeedDialController controller;
-  final String? startMessage;
-  final Duration messageDuration;
-  final MapEntry<int, DrapSpeedDialChild> child;
+  final String? tooltipMessage;
+  final MapEntry<int, DragSpeedDialChild> child;
 
   @override
   Widget build(BuildContext context) {
@@ -128,10 +114,7 @@ class _FabsItem extends StatelessWidget {
           translation: Offset.zero,
           child: ScaleTransition(
             scale: controller.menuAnimation(child.key),
-            child: _FloatingButton(
-              startMessage: null,
-              messageDuration: messageDuration,
-              controller: controller,
+            child: Tooltip(
               child: FloatingActionButton(
                 backgroundColor: child.value.bgColor,
                 mini: true,
@@ -154,17 +137,12 @@ class _FabsItem extends StatelessWidget {
 
 class _MainFirstButton extends StatelessWidget {
   const _MainFirstButton({
-    super.key,
-    required this.startMessage,
-    required this.messageDuration,
     required this.controller,
     required this.actionOnPress,
     required this.rotateTheIcon,
     this.onPressed,
   });
 
-  final String? startMessage;
-  final Duration messageDuration;
   final DragSpeedDialController controller;
   final VoidCallback? actionOnPress;
   final bool rotateTheIcon;
@@ -172,80 +150,32 @@ class _MainFirstButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _FloatingButton(
-      startMessage: startMessage,
-      messageDuration: messageDuration,
-      controller: controller,
-      child: Material(
-        shape: const CircleBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: FloatingActionButton(
-          backgroundColor: Color.lerp(Colors.black, controller.fabBgColor,
-              controller.fabButtonAnimation().value),
-          onPressed: onPressed ?? actionOnPress ?? () {},
-          child: !rotateTheIcon
-              ? controller.fabIcon
-              : RotationTransition(
-                  turns: controller.fabButtonAnimation(),
-                  child: Stack(
-                    children: [
-                      AnimatedOpacity(
-                          duration: const Duration(milliseconds: 100),
-                          opacity: controller.fabButtonAnimation().value,
-                          child: controller.fabIcon),
-                      AnimatedOpacity(
-                          duration: const Duration(milliseconds: 100),
-                          opacity: controller
-                              .fabButtonAnimation(isCloseIcon: true)
-                              .value,
-                          child: const Icon(Icons.close, color: Colors.white)),
-                    ],
-                  )),
-        ),
+    return Material(
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: FloatingActionButton(
+        backgroundColor: Color.lerp(Colors.black, controller.fabBgColor,
+            controller.fabButtonAnimation().value),
+        onPressed: onPressed ?? actionOnPress ?? () {},
+        child: !rotateTheIcon
+            ? controller.fabIcon
+            : RotationTransition(
+                turns: controller.fabButtonAnimation(),
+                child: Stack(
+                  children: [
+                    AnimatedOpacity(
+                        duration: const Duration(milliseconds: 100),
+                        opacity: controller.fabButtonAnimation().value,
+                        child: controller.fabIcon),
+                    AnimatedOpacity(
+                        duration: const Duration(milliseconds: 100),
+                        opacity: controller
+                            .fabButtonAnimation(isCloseIcon: true)
+                            .value,
+                        child: const Icon(Icons.close, color: Colors.white)),
+                  ],
+                )),
       ),
     );
-  }
-}
-
-class _FloatingButton extends StatelessWidget {
-  const _FloatingButton({
-    this.startMessage,
-    required this.messageDuration,
-    required this.controller,
-    required this.child,
-  }) : super();
-
-  final String? startMessage;
-  final Duration messageDuration;
-  final DragSpeedDialController controller;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    if (startMessage == null) {
-      return child;
-    }
-    return LayoutBuilder(builder: (context, constraints) {
-      if (!controller.isTooltipMessageDisplayed) {
-        Future.microtask(() => Future.delayed(
-            messageDuration, controller.tooltipController.showTooltip));
-        Future.microtask(() => Future.delayed(const Duration(seconds: 2),
-            controller.disableTooltipMessageDisplay));
-      }
-
-      return SizedBox(
-        child: JustTheTooltip(
-          controller: controller.tooltipController,
-          preferredDirection: AxisDirection.up,
-          content: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              startMessage ?? '',
-            ),
-          ),
-          child: child,
-        ),
-      );
-    });
   }
 }
