@@ -17,8 +17,8 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
     final dragSpeedDialChildren =
         controller.dragSpeedDialChildren?.asMap().entries.map((e) {
       return _FabItem(
@@ -98,8 +98,8 @@ class _FabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
 
     return CompositedTransformFollower(
       offset: controller.getPosition(screenHeight, screenWidth) ?? Offset.zero,

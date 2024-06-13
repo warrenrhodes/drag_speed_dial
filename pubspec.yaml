@@ -1,6 +1,6 @@
 name: drag_speed_dial
 description: Flutter package to implement a FAB and dynamic Material Design Speed Dial, draggable, multi-directional children and much more.
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/warrenrhodes/drag_speed_dial
 
 environment:
