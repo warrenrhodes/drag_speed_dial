@@ -216,6 +216,11 @@ class DragSpeedDialController extends ChangeNotifier {
       if (leftX > screenWidth - 60) {
         leftX = screenWidth - 65;
       }
+
+      if (fabPosition.dx == leftX && fabPosition.dy == leftY) {
+        return;
+      }
+
       fabPosition = Offset(leftX, leftY);
       notifyListeners();
       return;
@@ -231,6 +236,11 @@ class DragSpeedDialController extends ChangeNotifier {
     } else {
       leftY = leftY;
     }
+
+    if (fabPosition.dx == leftX && fabPosition.dy == leftY) {
+      return;
+    }
+
     fabPosition = Offset(leftX, leftY);
 
     notifyListeners();

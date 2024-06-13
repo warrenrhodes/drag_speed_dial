@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import 'drag_speed_dial.dart';
@@ -32,7 +30,7 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
         builder: (context, snapshot) {
           final isDragging = controller.isDragging;
           final fabPosition = controller.fabPosition;
-          Future.microtask(() {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!controller.isDragging) {
               controller.onPanEnd(
                 screenHeight: screenHeight,
