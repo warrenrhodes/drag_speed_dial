@@ -23,6 +23,9 @@ class DragSpeedDialController extends ChangeNotifier {
   /// Whether the tooltip has been shown.
   bool isTooltipMessageDisplayed = false;
 
+  /// Whether the overlay is visible.
+  bool isOverlayVisible = false;
+
   /// The fab position.
   Offset fabPosition = Offset.zero;
 
@@ -39,13 +42,6 @@ class DragSpeedDialController extends ChangeNotifier {
 
   /// The menu animation controller.
   static final AnimationController menuAnimationController =
-      AnimationController(
-    duration: const Duration(milliseconds: 300),
-    vsync: const _MyTickerProvider(),
-  );
-
-  /// The FAB animation controller.
-  static final AnimationController fabButtonAnimationController =
       AnimationController(
     duration: const Duration(milliseconds: 300),
     vsync: const _MyTickerProvider(),
@@ -252,6 +248,8 @@ class DragSpeedDialController extends ChangeNotifier {
     if (newOverlay == null) return;
     Overlay.of(context).insert(newOverlay);
     menuAnimationController.forward();
+    isOverlayVisible = true;
+    notifyListeners();
   }
 
   OverlayEntry _createOverlayEntry(
@@ -263,12 +261,12 @@ class DragSpeedDialController extends ChangeNotifier {
     );
   }
 
-  void removeLayer() {
-    menuAnimationController.reverse().then((value) {
-      overlayEntry?.remove();
-      overlayEntry = null;
-      itemPosition = Offset.zero;
-    });
+  Future<void> removeLayer() async {
+    await menuAnimationController.reverse();
+    overlayEntry?.remove();
+    overlayEntry = null;
+    itemPosition = Offset.zero;
+    isOverlayVisible = false;
     notifyListeners();
   }
 
