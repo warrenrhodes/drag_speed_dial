@@ -67,10 +67,9 @@ class DragSpeedDialButtonAnimation extends StatelessWidget {
                       )
                     : CompositedTransformTarget(
                         link: controller.buttonLayerLink,
-                        child: _MainFirstButton(
+                        child: AnimatedFABButton(
                           controller: controller,
                           actionOnPress: actionOnPress,
-                          rotateTheIcon: true,
                           onPressed: () {
                             if (controller.overlayEntry != null) {
                               controller.removeLayer();
@@ -112,19 +111,18 @@ class _FabItem extends StatelessWidget {
           translation: Offset.zero,
           child: ScaleTransition(
             scale: controller.menuAnimation(child.key),
-            child: Tooltip(
-              child: FloatingActionButton(
-                backgroundColor: child.value.bgColor,
-                mini: true,
-                heroTag: null,
-                onPressed: () {
-                  if (controller.overlayEntry != null) {
-                    controller.removeLayer();
-                  }
-                  child.value.onPressed?.call();
-                },
-                child: child.value.icon,
-              ),
+            child: FloatingActionButton(
+              backgroundColor: child.value.bgColor,
+              mini: true,
+              shape: const CircleBorder(),
+              heroTag: null,
+              onPressed: () {
+                if (controller.overlayEntry != null) {
+                  controller.removeLayer();
+                }
+                child.value.onPressed?.call();
+              },
+              child: child.value.icon,
             ),
           ),
         ),
@@ -133,17 +131,16 @@ class _FabItem extends StatelessWidget {
   }
 }
 
-class _MainFirstButton extends StatelessWidget {
-  const _MainFirstButton({
+class AnimatedFABButton extends StatelessWidget {
+  const AnimatedFABButton({
+    super.key,
     required this.controller,
     required this.actionOnPress,
-    required this.rotateTheIcon,
     this.onPressed,
   });
 
   final DragSpeedDialController controller;
   final VoidCallback? actionOnPress;
-  final bool rotateTheIcon;
   final VoidCallback? onPressed;
 
   @override
@@ -152,27 +149,23 @@ class _MainFirstButton extends StatelessWidget {
       shape: const CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: FloatingActionButton(
-        backgroundColor: Color.lerp(Colors.black, controller.fabBgColor,
-            controller.fabButtonAnimation().value),
+        backgroundColor:
+            controller.isOverlayVisible ? Colors.black : controller.fabBgColor,
         onPressed: onPressed ?? actionOnPress ?? () {},
-        child: !rotateTheIcon
-            ? controller.fabIcon
-            : RotationTransition(
-                turns: controller.fabButtonAnimation(),
-                child: Stack(
-                  children: [
-                    AnimatedOpacity(
-                        duration: const Duration(milliseconds: 100),
-                        opacity: controller.fabButtonAnimation().value,
-                        child: controller.fabIcon),
-                    AnimatedOpacity(
-                        duration: const Duration(milliseconds: 100),
-                        opacity: controller
-                            .fabButtonAnimation(isCloseIcon: true)
-                            .value,
-                        child: const Icon(Icons.close, color: Colors.white)),
-                  ],
-                )),
+        child: RotationTransition(
+            turns: controller.fabButtonAnimation(),
+            child: Stack(
+              children: [
+                AnimatedOpacity(
+                    duration: const Duration(milliseconds: 100),
+                    opacity: controller.isOverlayVisible ? 0 : 1,
+                    child: controller.fabIcon),
+                AnimatedOpacity(
+                    duration: const Duration(milliseconds: 100),
+                    opacity: controller.isOverlayVisible ? 1 : 0,
+                    child: const Icon(Icons.close, color: Colors.white)),
+              ],
+            )),
       ),
     );
   }

@@ -35,9 +35,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   bool isDraggable = true;
   DragSpeedDialChildrenAlignment alignment =
-      DragSpeedDialChildrenAlignment.horizontal;
+      DragSpeedDialChildrenAlignment.vertical;
   DragSpeedDialPosition initialPosition = DragSpeedDialPosition.bottomRight;
-  bool snagOnScreen = true;
+  bool snagOnScreen = false;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,8 @@ class _MyHomePageState extends State<MyHomePage> {
               initialPosition: initialPosition,
               snagOnScreen: snagOnScreen,
               fabBgColor: Colors.red,
-              actionOnPress: () => print("salut"),
+              //actionOnPress: () => print("salut"),
+
               dragSpeedDialChildren: [
                 DragSpeedDialChild(
                   onPressed: () {
