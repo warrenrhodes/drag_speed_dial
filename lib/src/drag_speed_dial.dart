@@ -21,10 +21,7 @@ enum DragSpeedDialPosition {
 ///
 /// This enumeration defines how the child elements [DragSpeedDialChildren] are organized within the `DragSpeedDial`.
 /// It offers two options: arranging them horizontally or vertically, providing flexibility in how the UI elements are presented to the user.
-enum DragSpeedDialChildrenAlignment {
-  horizontal,
-  vertical,
-}
+enum DragSpeedDialChildrenAlignment { horizontal, vertical }
 
 class DragSpeedDialChild {
   /// Creates a new instance of `DragSpeedDialChild`.
@@ -52,7 +49,6 @@ class DragSpeedDialChild {
 class DragSpeedDial extends StatelessWidget {
   const DragSpeedDial({
     super.key,
-    this.tooltipMessage,
     this.actionOnPress,
     this.isDraggable = true,
     this.fabIcon = const Icon(Icons.menu),
@@ -62,13 +58,22 @@ class DragSpeedDial extends StatelessWidget {
     this.alignment = DragSpeedDialChildrenAlignment.horizontal,
     this.dragSpeedDialChildren,
     this.snagOnScreen = false,
-  })  : assert(offsetPosition != null || initialPosition != null,
-            '`InitialPosition` or `offsetPosition` must be specified'),
-        assert((actionOnPress == null) != (dragSpeedDialChildren == null),
-            'Either `ActionOnPress` or `dragSpeedDialChildren` must be specified');
-
-  /// The tooltip message.
-  final String? tooltipMessage;
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
+    this.overlayBuilder,
+  }) : assert(
+         offsetPosition != null || initialPosition != null,
+         '`InitialPosition` or `offsetPosition` must be specified',
+       ),
+       assert(
+         actionOnPress != null || dragSpeedDialChildren != null,
+         'Either `ActionOnPress` or `dragSpeedDialChildren` must be specified',
+       ),
+       assert(
+         !(actionOnPress != null && dragSpeedDialChildren != null),
+         'Cannot specify both `actionOnPress` and `dragSpeedDialChildren`. Use one or the other.',
+       );
 
   /// Callback function to be executed when the FAB is pressed.
   final VoidCallback? actionOnPress;
@@ -101,11 +106,23 @@ class DragSpeedDial extends StatelessWidget {
   /// Whether the FAB should snap on screen.
   final bool snagOnScreen;
 
+  /// Callback called when drag starts.
+  final VoidCallback? onDragStart;
+
+  /// Callback called during drag with current position.
+  final ValueChanged<Offset>? onDragUpdate;
+
+  /// Callback called when drag ends with final position.
+  final ValueChanged<Offset>? onDragEnd;
+
+  /// Builder for overlay widgets (e.g., close button).
+  /// Receives context and whether FAB is currently being dragged.
+  final Widget Function(BuildContext context, bool isDragging)? overlayBuilder;
+
   @override
   Widget build(BuildContext context) {
     return FloatingSnapButtonView(
       actionOnPress: actionOnPress,
-      tooltipMessage: tooltipMessage,
       isDraggable: isDraggable,
       initialPosition: initialPosition,
       offsetPosition: offsetPosition,
@@ -114,6 +131,10 @@ class DragSpeedDial extends StatelessWidget {
       childrenStyle: alignment,
       dragSpeedDialChildren: dragSpeedDialChildren,
       snagOnScreen: snagOnScreen,
+      onDragStart: onDragStart,
+      onDragUpdate: onDragUpdate,
+      onDragEnd: onDragEnd,
+      overlayBuilder: overlayBuilder,
     );
   }
 }
@@ -131,11 +152,13 @@ class FloatingSnapButtonView extends StatelessWidget {
     this.fabBgColor,
     this.dragSpeedDialChildren,
     this.actionOnPress,
-    this.tooltipMessage,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
+    this.overlayBuilder,
   });
 
   final bool snagOnScreen;
-  final String? tooltipMessage;
   final VoidCallback? actionOnPress;
   final bool isDraggable;
   final DragSpeedDialPosition? initialPosition;
@@ -144,6 +167,10 @@ class FloatingSnapButtonView extends StatelessWidget {
   final DragSpeedDialChildrenAlignment childrenStyle;
   final Color? fabBgColor;
   final List<DragSpeedDialChild>? dragSpeedDialChildren;
+  final VoidCallback? onDragStart;
+  final ValueChanged<Offset>? onDragUpdate;
+  final ValueChanged<Offset>? onDragEnd;
+  final Widget Function(BuildContext, bool)? overlayBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -151,46 +178,53 @@ class FloatingSnapButtonView extends StatelessWidget {
     final screenHeight = MediaQuery.sizeOf(context).height;
 
     final controller = DragSpeedDialController(
-        snagOnScreen: snagOnScreen,
-        isDraggable: isDraggable,
-        initialPosition: initialPosition,
-        offsetPosition: offsetPosition,
-        screenHeight: screenHeight,
-        screenWidth: screenWidth,
-        fabIcon: fabIcon,
-        fabBgColor: fabBgColor ??
-            Theme.of(context).floatingActionButtonTheme.backgroundColor ??
-            Colors.pink,
-        dragSpeedDialChildren: dragSpeedDialChildren,
-        childrenStyle: childrenStyle);
+      snagOnScreen: snagOnScreen,
+      isDraggable: isDraggable,
+      initialPosition: initialPosition,
+      offsetPosition: offsetPosition,
+      screenHeight: screenHeight,
+      screenWidth: screenWidth,
+      fabIcon: fabIcon,
+      fabBgColor:
+          fabBgColor ??
+          Theme.of(context).floatingActionButtonTheme.backgroundColor ??
+          Colors.pink,
+      dragSpeedDialChildren: dragSpeedDialChildren,
+      childrenStyle: childrenStyle,
+      onDragStart: onDragStart,
+      onDragUpdate: onDragUpdate,
+      onDragEnd: onDragEnd,
+    );
     return DragSpeedDialButtonAnimation(
-      tooltipMessage: tooltipMessage,
       controller: controller,
       actionOnPress: actionOnPress,
+      overlayBuilder: overlayBuilder,
     );
   }
 }
 
 const darkLinearGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color.fromRGBO(60, 28, 20, 1),
-      Color.fromRGBO(61, 29, 18, 1),
-      Color.fromRGBO(52, 23, 15, 1),
-      Color.fromRGBO(46, 21, 14, 1),
-      Color.fromRGBO(40, 18, 13, 1),
-      Color.fromRGBO(30, 16, 11, 1),
-      Color.fromRGBO(29, 14, 10, 1),
-      Color.fromRGBO(16, 9, 6, 1),
-    ]);
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [
+    Color.fromRGBO(60, 28, 20, 1),
+    Color.fromRGBO(61, 29, 18, 1),
+    Color.fromRGBO(52, 23, 15, 1),
+    Color.fromRGBO(46, 21, 14, 1),
+    Color.fromRGBO(40, 18, 13, 1),
+    Color.fromRGBO(30, 16, 11, 1),
+    Color.fromRGBO(29, 14, 10, 1),
+    Color.fromRGBO(16, 9, 6, 1),
+  ],
+);
 
 const lightLinearGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color.fromRGBO(245, 245, 245, 1),
-      Color.fromRGBO(245, 245, 245, 1),
-      Color.fromRGBO(245, 245, 245, 1),
-      Color.fromRGBO(245, 245, 245, 1),
-    ]);
+  begin: Alignment.topCenter,
+  end: Alignment.bottomCenter,
+  colors: [
+    Color.fromRGBO(245, 245, 245, 1),
+    Color.fromRGBO(245, 245, 245, 1),
+    Color.fromRGBO(245, 245, 245, 1),
+    Color.fromRGBO(245, 245, 245, 1),
+  ],
+);
