@@ -49,116 +49,117 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: Stack(
           children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const DefaultTextStyle(
+            Positioned(
+              top: 20,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.white.withOpacity(0.9),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const DefaultTextStyle(
                           style: TextStyle(color: Colors.black),
-                          child: Text('isDraggable: ')),
-                      Switch(
-                          value: isDraggable,
-                          onChanged: (value) => {
-                                setState(() {
-                                  isDraggable = value;
-                                })
-                              }),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const DefaultTextStyle(
-                          style: TextStyle(color: Colors.black),
-                          child: Text('Snag on screen: ')),
-                      Switch(
+                          child: Text('Snag on screen: '),
+                        ),
+                        Switch(
                           value: snagOnScreen,
                           onChanged: (value) => {
-                                setState(() {
-                                  snagOnScreen = value;
-                                })
-                              }),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const DefaultTextStyle(
+                            setState(() {
+                              snagOnScreen = value;
+                            }),
+                          },
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const DefaultTextStyle(
                           style: TextStyle(color: Colors.black),
-                          child: Text('Fab Aligment ')),
-                      DropdownButton<DragSpeedDialChildrenAlignment>(
+                          child: Text('isDraggable: '),
+                        ),
+                        Switch(
+                          value: isDraggable,
+                          onChanged: (value) => {
+                            setState(() {
+                              isDraggable = value;
+                            }),
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const DefaultTextStyle(
+                          style: TextStyle(color: Colors.black),
+                          child: Text('Fab Aligment '),
+                        ),
+                        DropdownButton<DragSpeedDialChildrenAlignment>(
                           value: alignment,
                           items: DragSpeedDialChildrenAlignment.values
-                              .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e.name),
-                                  ))
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.name),
+                                ),
+                              )
                               .toList(),
                           onChanged: (value) => {
+                            if (value != null)
+                              {
                                 setState(() {
-                                  alignment = value!;
-                                })
-                              }),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const DefaultTextStyle(
+                                  alignment = value;
+                                }),
+                              },
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const DefaultTextStyle(
                           style: TextStyle(color: Colors.black),
-                          child: Text('Initial Position ')),
-                      DropdownButton<DragSpeedDialPosition>(
+                          child: Text('Initial Position '),
+                        ),
+                        DropdownButton<DragSpeedDialPosition>(
                           value: initialPosition,
                           items: DragSpeedDialPosition.values
-                              .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e.name),
-                                  ))
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.name),
+                                ),
+                              )
                               .toList(),
                           onChanged: (value) => {
-                                setState(() {
-                                  initialPosition = value!;
-                                })
-                              }),
-                    ],
-                  ),
-                ],
+                            setState(() {
+                              initialPosition = value!;
+                            }),
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             DragSpeedDial(
               isDraggable: isDraggable,
               alignment: alignment,
-              initialPosition: initialPosition,
+              offsetPosition: const Offset(0, 0),
               snagOnScreen: snagOnScreen,
               fabBgColor: Colors.red,
-              //actionOnPress: () => print("salut"),
-
-              dragSpeedDialChildren: [
-                DragSpeedDialChild(
-                  onPressed: () {
-                    print("bonjour");
-                  },
-                  bgColor: Colors.blue,
-                  icon: const Icon(Icons.grade_outlined),
-                ),
-                DragSpeedDialChild(
-                  onPressed: () {
-                    print("salut");
-                  },
-                  bgColor: Colors.yellow,
-                  icon: const Icon(Icons.inbox),
-                ),
-                DragSpeedDialChild(
-                  onPressed: () {
-                    print("salut");
-                  },
-                  bgColor: Colors.red,
-                  icon: const Icon(Icons.headset_rounded),
-                ),
-              ],
+              fabIcon: const Icon(Icons.add, color: Colors.white),
+              actionOnPress: () => print("salut"),
             ),
           ],
         ),
